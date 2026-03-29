@@ -1,63 +1,106 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 
 type Status = 'Programada' | 'Iniciada' | 'Não iniciada' | 'Concluída';
 
 type Programacao = {
-  os: string;
+  numeroChamado: string;
   descricao: string;
-  abriu: string;
+  areaRequisitante: string;
+  localRealizacao: string;
+  tempoExec: string;
+  dataInicio: string;
+  dataTermino: string;
+  tipoSolicitacao: string;
   equipe: string;
   encarregado: string;
-  data: string;
+  solicitante: string;
   status: Status;
 };
 
 export default function HomePage() {
-  const cards = [
-    { label: 'OS Programadas', value: 28 },
-    { label: 'Iniciadas', value: 9 },
-    { label: 'Não iniciadas', value: 6 },
-    { label: 'Concluídas', value: 13 },
-  ];
-
-  const programacoes: Programacao[] = [
+  const dadosExemplo: Programacao[] = [
     {
-      os: 'OS-2026-001',
+      numeroChamado: 'CH-2026-001',
       descricao: 'Reparo de fissura em alvenaria',
-      abriu: 'Carlos Lima',
+      areaRequisitante: 'Manutenção Predial',
+      localRealizacao: 'Bloco A',
+      tempoExec: '4h',
+      dataInicio: '29/03/2026',
+      dataTermino: '29/03/2026',
+      tipoSolicitacao: 'Corretiva',
       equipe: 'Equipe Civil A',
       encarregado: 'João Souza',
-      data: '29/03/2026',
+      solicitante: 'Carlos Lima',
       status: 'Programada',
     },
     {
-      os: 'OS-2026-002',
+      numeroChamado: 'CH-2026-002',
       descricao: 'Recuperação de piso industrial',
-      abriu: 'Fernanda Alves',
+      areaRequisitante: 'Produção',
+      localRealizacao: 'Galpão 2',
+      tempoExec: '8h',
+      dataInicio: '29/03/2026',
+      dataTermino: '30/03/2026',
+      tipoSolicitacao: 'Programada',
       equipe: 'Equipe Civil B',
       encarregado: 'Marcos Silva',
-      data: '29/03/2026',
+      solicitante: 'Fernanda Alves',
       status: 'Iniciada',
     },
     {
-      os: 'OS-2026-003',
+      numeroChamado: 'CH-2026-003',
       descricao: 'Pintura de área técnica',
-      abriu: 'Ana Costa',
+      areaRequisitante: 'Utilidades',
+      localRealizacao: 'Casa de Bombas',
+      tempoExec: '6h',
+      dataInicio: '29/03/2026',
+      dataTermino: '29/03/2026',
+      tipoSolicitacao: 'Melhoria',
       equipe: 'Equipe Civil C',
       encarregado: 'João Souza',
-      data: '29/03/2026',
+      solicitante: 'Ana Costa',
       status: 'Concluída',
     },
     {
-      os: 'OS-2026-004',
+      numeroChamado: 'CH-2026-004',
       descricao: 'Recomposição de calçada',
-      abriu: 'Rafael Nunes',
+      areaRequisitante: 'Infraestrutura',
+      localRealizacao: 'Portaria 1',
+      tempoExec: '5h',
+      dataInicio: '29/03/2026',
+      dataTermino: '29/03/2026',
+      tipoSolicitacao: 'Programada',
       equipe: 'Equipe Civil A',
       encarregado: 'João Souza',
-      data: '29/03/2026',
+      solicitante: 'Rafael Nunes',
       status: 'Não iniciada',
     },
   ];
+
+  const [programacoes, setProgramacoes] = useState<Programacao[]>(dadosExemplo);
+  const [filtroNumero, setFiltroNumero] = useState('');
+  const [filtroEncarregado, setFiltroEncarregado] = useState('');
+  const [filtroEquipe, setFiltroEquipe] = useState('');
+  const [filtroData, setFiltroData] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState('');
+
+  useEffect(() => {
+    const dadosSalvos = localStorage.getItem('programacoesImportadas');
+
+    if (dadosSalvos) {
+      try {
+        const dadosConvertidos = JSON.parse(dadosSalvos) as Programacao[];
+        if (Array.isArray(dadosConvertidos) && dadosConvertidos.length > 0) {
+          setProgramacoes(dadosConvertidos);
+        }
+      } catch {
+        console.error('Erro ao ler programações importadas.');
+      }
+    }
+  }, []);
 
   const statusStyle: Record<Status, string> = {
     Programada: 'bg-slate-100 text-slate-700',
@@ -73,6 +116,51 @@ export default function HomePage() {
       </span>
     );
   }
+
+  const programacoesFiltradas = useMemo(() => {
+    return programacoes.filter((item) => {
+      const atendeNumero =
+        filtroNumero === '' ||
+        item.numeroChamado.toLowerCase().includes(filtroNumero.toLowerCase());
+
+      const atendeEncarregado =
+        filtroEncarregado === '' ||
+        item.encarregado.toLowerCase().includes(filtroEncarregado.toLowerCase());
+
+      const atendeEquipe =
+        filtroEquipe === '' ||
+        item.equipe.toLowerCase().includes(filtroEquipe.toLowerCase());
+
+      const atendeData =
+        filtroData === '' ||
+        item.dataInicio.toLowerCase().includes(filtroData.toLowerCase());
+
+      const atendeStatus =
+        filtroStatus === '' || item.status === filtroStatus;
+
+      return (
+        atendeNumero &&
+        atendeEncarregado &&
+        atendeEquipe &&
+        atendeData &&
+        atendeStatus
+      );
+    });
+  }, [programacoes, filtroNumero, filtroEncarregado, filtroEquipe, filtroData, filtroStatus]);
+
+  const cards = useMemo(() => {
+    const totalProgramadas = programacoes.filter((item) => item.status === 'Programada').length;
+    const totalIniciadas = programacoes.filter((item) => item.status === 'Iniciada').length;
+    const totalNaoIniciadas = programacoes.filter((item) => item.status === 'Não iniciada').length;
+    const totalConcluidas = programacoes.filter((item) => item.status === 'Concluída').length;
+
+    return [
+      { label: 'OS Programadas', value: totalProgramadas },
+      { label: 'Iniciadas', value: totalIniciadas },
+      { label: 'Não iniciadas', value: totalNaoIniciadas },
+      { label: 'Concluídas', value: totalConcluidas },
+    ];
+  }, [programacoes]);
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-8">
@@ -121,7 +209,7 @@ export default function HomePage() {
                 Tela 1 — Dashboard do Planejamento
               </h2>
               <p className="text-sm text-slate-600">
-                Visão geral das OS com indicadores e ações principais.
+                Visão geral das programações com indicadores e ações principais.
               </p>
             </div>
             <div className="rounded-2xl bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
@@ -140,27 +228,39 @@ export default function HomePage() {
 
           <div className="mt-6 grid gap-3 md:grid-cols-5">
             <input
+              value={filtroNumero}
+              onChange={(e) => setFiltroNumero(e.target.value)}
               className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none"
-              placeholder="Filtrar por número da OS"
+              placeholder="Filtrar por número do chamado"
             />
             <input
+              value={filtroEncarregado}
+              onChange={(e) => setFiltroEncarregado(e.target.value)}
               className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none"
               placeholder="Filtrar por encarregado"
             />
             <input
+              value={filtroEquipe}
+              onChange={(e) => setFiltroEquipe(e.target.value)}
               className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none"
               placeholder="Filtrar por equipe"
             />
             <input
+              value={filtroData}
+              onChange={(e) => setFiltroData(e.target.value)}
               className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none"
-              placeholder="Filtrar por data"
+              placeholder="Filtrar por data início"
             />
-            <select className="rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-600 outline-none">
-              <option>Status</option>
-              <option>Programada</option>
-              <option>Iniciada</option>
-              <option>Não iniciada</option>
-              <option>Concluída</option>
+            <select
+              value={filtroStatus}
+              onChange={(e) => setFiltroStatus(e.target.value)}
+              className="rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-600 outline-none"
+            >
+              <option value="">Status</option>
+              <option value="Programada">Programada</option>
+              <option value="Iniciada">Iniciada</option>
+              <option value="Não iniciada">Não iniciada</option>
+              <option value="Concluída">Concluída</option>
             </select>
           </div>
         </section>
@@ -172,36 +272,47 @@ export default function HomePage() {
                 Tela 2 — Lista de Programações
               </h2>
               <p className="text-sm text-slate-600">
-                Tabela para acompanhamento de todas as ordens de serviço.
+                Tabela para acompanhamento de todas as ordens de serviço importadas da planilha.
               </p>
             </div>
           </div>
 
-          <div className="hidden overflow-x-auto lg:block">
-            <table className="min-w-full border-separate border-spacing-y-2">
+          <div className="overflow-x-auto">
+            <table className="min-w-[1600px] border-separate border-spacing-y-2">
               <thead>
                 <tr className="text-left text-sm text-slate-500">
-                  <th className="px-4 py-2">OS</th>
+                  <th className="px-4 py-2">Número do chamado</th>
                   <th className="px-4 py-2">Descrição</th>
-                  <th className="px-4 py-2">Quem abriu</th>
+                  <th className="px-4 py-2">Área requisitante</th>
+                  <th className="px-4 py-2">Local de realização</th>
+                  <th className="px-4 py-2">Tempo exec</th>
+                  <th className="px-4 py-2">Data início</th>
+                  <th className="px-4 py-2">Data término</th>
+                  <th className="px-4 py-2">Tipo da solicitação</th>
                   <th className="px-4 py-2">Equipe</th>
                   <th className="px-4 py-2">Encarregado</th>
-                  <th className="px-4 py-2">Data</th>
+                  <th className="px-4 py-2">Solicitante</th>
                   <th className="px-4 py-2">Status</th>
                   <th className="px-4 py-2">Ação</th>
                 </tr>
               </thead>
+
               <tbody>
-                {programacoes.map((item) => (
-                  <tr key={item.os} className="rounded-2xl bg-slate-50 text-sm text-slate-700">
+                {programacoesFiltradas.map((item) => (
+                  <tr key={item.numeroChamado} className="rounded-2xl bg-slate-50 text-sm text-slate-700">
                     <td className="rounded-l-2xl px-4 py-4 font-semibold text-slate-900">
-                      {item.os}
+                      {item.numeroChamado}
                     </td>
                     <td className="px-4 py-4">{item.descricao}</td>
-                    <td className="px-4 py-4">{item.abriu}</td>
+                    <td className="px-4 py-4">{item.areaRequisitante}</td>
+                    <td className="px-4 py-4">{item.localRealizacao}</td>
+                    <td className="px-4 py-4">{item.tempoExec}</td>
+                    <td className="px-4 py-4">{item.dataInicio}</td>
+                    <td className="px-4 py-4">{item.dataTermino}</td>
+                    <td className="px-4 py-4">{item.tipoSolicitacao}</td>
                     <td className="px-4 py-4">{item.equipe}</td>
                     <td className="px-4 py-4">{item.encarregado}</td>
-                    <td className="px-4 py-4">{item.data}</td>
+                    <td className="px-4 py-4">{item.solicitante}</td>
                     <td className="px-4 py-4">
                       <StatusBadge status={item.status} />
                     </td>
@@ -216,37 +327,8 @@ export default function HomePage() {
             </table>
           </div>
 
-          <div className="grid gap-4 lg:hidden">
-            {programacoes.map((item) => (
-              <div key={item.os} className="rounded-2xl border border-slate-200 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-bold text-slate-900">{item.os}</p>
-                    <p className="mt-1 text-sm text-slate-600">{item.descricao}</p>
-                  </div>
-                  <StatusBadge status={item.status} />
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-600">
-                  <div>
-                    <p className="text-xs text-slate-400">Quem abriu</p>
-                    <p>{item.abriu}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Equipe</p>
-                    <p>{item.equipe}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Encarregado</p>
-                    <p>{item.encarregado}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Data</p>
-                    <p>{item.data}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+            Role horizontalmente para visualizar todas as colunas da programação.
           </div>
         </section>
       </div>
