@@ -20,6 +20,41 @@ type Programacao = {
   status: Status;
 };
 
+function formatarEquipe(equipe: string) {
+  const texto = (equipe || '').trim();
+
+  if (!texto) return [];
+
+  if (texto.includes('\n')) {
+    return texto
+      .split('\n')
+      .map((nome) => nome.trim())
+      .filter(Boolean);
+  }
+
+  if (texto.includes(';')) {
+    return texto
+      .split(';')
+      .map((nome) => nome.trim())
+      .filter(Boolean);
+  }
+
+  if (texto.includes(',')) {
+    return texto
+      .split(',')
+      .map((nome) => nome.trim())
+      .filter(Boolean);
+  }
+
+  const nomes = texto.match(/[A-ZÀ-Ú]+(?:\s+[A-ZÀ-Ú]+){2,5}/g);
+
+  if (nomes && nomes.length > 1) {
+    return nomes.map((nome) => nome.trim());
+  }
+
+  return [texto];
+}
+
 export default function HomePage() {
   const dadosExemplo: Programacao[] = [
     {
@@ -31,7 +66,7 @@ export default function HomePage() {
       dataInicio: '29/03/2026',
       dataTermino: '29/03/2026',
       tipoSolicitacao: 'Corretiva',
-      equipe: 'Equipe Civil A',
+      equipe: 'PEDRO HENRIQUE ALENCAR DO ROSARIO CICERO RUFINO DA SILVA NETO LEVI DE SOUZA DA LUZ JOSE ANTONIO DIAS SILVA',
       encarregado: 'João Souza',
       solicitante: 'Carlos Lima',
       status: 'Programada',
@@ -45,7 +80,7 @@ export default function HomePage() {
       dataInicio: '29/03/2026',
       dataTermino: '30/03/2026',
       tipoSolicitacao: 'Programada',
-      equipe: 'Equipe Civil B',
+      equipe: 'MARCOS VINICIUS ALVES DA SILVA JOSUE MULLER SILVA MESQUITA AIRCONI MATEUS DE SOUSA FERREIRA',
       encarregado: 'Marcos Silva',
       solicitante: 'Fernanda Alves',
       status: 'Iniciada',
@@ -59,7 +94,7 @@ export default function HomePage() {
       dataInicio: '29/03/2026',
       dataTermino: '29/03/2026',
       tipoSolicitacao: 'Melhoria',
-      equipe: 'Equipe Civil C',
+      equipe: 'CLAUDIO DO NASCIMENTO SILVA JOSE ROBERTO PEREIRA LIMA',
       encarregado: 'João Souza',
       solicitante: 'Ana Costa',
       status: 'Concluída',
@@ -73,7 +108,7 @@ export default function HomePage() {
       dataInicio: '29/03/2026',
       dataTermino: '29/03/2026',
       tipoSolicitacao: 'Programada',
-      equipe: 'Equipe Civil A',
+      equipe: 'RAFAEL NUNES COSTA JOAO PEDRO ALMEIDA SILVA',
       encarregado: 'João Souza',
       solicitante: 'Rafael Nunes',
       status: 'Não iniciada',
@@ -183,7 +218,7 @@ export default function HomePage() {
   }, [programacoes]);
 
   return (
-    <div className="min-h-screen bg-slate-100 px-3 py-4 md:px-4 md:py-6">
+    <div className="min-h-screen bg-slate-100 px-2 py-3 md:px-4 md:py-6">
       <style>{`
         .tabela-sem-barra::-webkit-scrollbar {
           width: 0px;
@@ -197,8 +232,8 @@ export default function HomePage() {
         }
       `}</style>
 
-      <div className="mx-auto flex w-full max-w-[1900px] flex-col gap-6">
-        <header className="rounded-3xl bg-white p-5 shadow-sm md:p-6">
+      <div className="mx-auto flex w-full max-w-[1920px] flex-col gap-6">
+        <header className="rounded-3xl bg-white p-4 shadow-sm md:p-6">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">Protótipo do portal</p>
@@ -235,7 +270,7 @@ export default function HomePage() {
           </div>
         </header>
 
-        <section className="rounded-3xl bg-white p-5 shadow-sm md:p-6">
+        <section className="rounded-3xl bg-white p-4 shadow-sm md:p-6">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-slate-900">
@@ -250,7 +285,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
             {cards.map((card) => (
               <div key={card.label} className="rounded-2xl border border-slate-200 p-5">
                 <p className="text-sm text-slate-500">{card.label}</p>
@@ -259,7 +294,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
             <input
               value={filtroNumero}
               onChange={(e) => setFiltroNumero(e.target.value)}
@@ -321,7 +356,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="rounded-3xl bg-white p-5 shadow-sm md:p-6">
+        <section className="rounded-3xl bg-white p-4 shadow-sm md:p-6">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-slate-900">
@@ -334,7 +369,7 @@ export default function HomePage() {
           </div>
 
           <div className="tabela-sem-barra overflow-x-auto">
-            <table className="w-full min-w-[1550px] border-separate border-spacing-y-2">
+            <table className="w-full min-w-[1500px] border-separate border-spacing-y-2">
               <thead>
                 <tr className="text-left text-sm text-slate-500">
                   <th className="px-4 py-2">Número do chamado</th>
@@ -358,15 +393,15 @@ export default function HomePage() {
                     key={`${item.numeroChamado}-${item.dataInicio}-${item.encarregado}`}
                     className="rounded-2xl bg-slate-50 text-sm text-slate-700"
                   >
-                    <td className="rounded-l-2xl px-4 py-4 font-semibold text-slate-900 whitespace-nowrap">
+                    <td className="rounded-l-2xl px-4 py-4 align-top font-semibold text-slate-900 whitespace-nowrap">
                       {item.numeroChamado}
                     </td>
 
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4 align-top">
                       <StatusBadge status={item.status} />
                     </td>
 
-                    <td className="min-w-[260px] px-4 py-4 text-justify align-top">
+                    <td className="min-w-[260px] px-4 py-4 align-top text-justify">
                       {item.descricao}
                     </td>
 
@@ -375,7 +410,17 @@ export default function HomePage() {
                     <td className="whitespace-nowrap px-4 py-4 align-top">{item.dataInicio}</td>
                     <td className="whitespace-nowrap px-4 py-4 align-top">{item.dataTermino}</td>
                     <td className="px-4 py-4 align-top">{item.tipoSolicitacao}</td>
-                    <td className="whitespace-nowrap px-4 py-4 align-top">{item.equipe}</td>
+
+                    <td className="px-4 py-4 align-top">
+                      <div className="min-w-[220px] space-y-1">
+                        {formatarEquipe(item.equipe).map((nome, index) => (
+                          <div key={`${item.numeroChamado}-equipe-${index}`} className="leading-5">
+                            {nome}
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+
                     <td className="px-4 py-4 align-top">{item.encarregado}</td>
                     <td className="px-4 py-4 align-top">{item.solicitante}</td>
 
