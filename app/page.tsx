@@ -184,15 +184,17 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-8">
-      <style jsx global>{`
-        .tabela-sem-barra::-webkit-scrollbar {
-          height: 0px;
-        }
-        .tabela-sem-barra {
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-        }
-      `}</style>
+      <style>{`
+  .tabela-sem-barra::-webkit-scrollbar {
+    height: 0px;
+    display: none;
+  }
+
+  .tabela-sem-barra {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+`}</style>
 
       <div className="mx-auto flex max-w-7xl flex-col gap-8">
         <header className="rounded-3xl bg-white p-6 shadow-sm">
