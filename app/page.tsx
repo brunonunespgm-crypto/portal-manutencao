@@ -183,22 +183,23 @@ export default function HomePage() {
   }, [programacoes]);
 
   return (
-    <div className="min-h-screen bg-slate-100 p-4 md:p-8">
+    <div className="min-h-screen bg-slate-100 px-3 py-4 md:px-4 md:py-6">
       <style>{`
-  .tabela-sem-barra::-webkit-scrollbar {
-    height: 0px;
-    display: none;
-  }
+        .tabela-sem-barra::-webkit-scrollbar {
+          width: 0px;
+          height: 0px;
+          display: none;
+        }
 
-  .tabela-sem-barra {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-`}</style>
+        .tabela-sem-barra {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+      `}</style>
 
-      <div className="mx-auto flex max-w-7xl flex-col gap-8">
-        <header className="rounded-3xl bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="mx-auto flex w-full max-w-[1900px] flex-col gap-6">
+        <header className="rounded-3xl bg-white p-5 shadow-sm md:p-6">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">Protótipo do portal</p>
               <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
@@ -234,7 +235,7 @@ export default function HomePage() {
           </div>
         </header>
 
-        <section className="rounded-3xl bg-white p-6 shadow-sm">
+        <section className="rounded-3xl bg-white p-5 shadow-sm md:p-6">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-slate-900">
@@ -249,7 +250,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {cards.map((card) => (
               <div key={card.label} className="rounded-2xl border border-slate-200 p-5">
                 <p className="text-sm text-slate-500">{card.label}</p>
@@ -258,7 +259,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="mt-6 grid gap-3 md:grid-cols-6">
+          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-6">
             <input
               value={filtroNumero}
               onChange={(e) => setFiltroNumero(e.target.value)}
@@ -320,7 +321,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="rounded-3xl bg-white p-6 shadow-sm">
+        <section className="rounded-3xl bg-white p-5 shadow-sm md:p-6">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-slate-900">
@@ -333,52 +334,53 @@ export default function HomePage() {
           </div>
 
           <div className="tabela-sem-barra overflow-x-auto">
-            <table className="min-w-[1600px] border-separate border-spacing-y-2">
+            <table className="w-full min-w-[1550px] border-separate border-spacing-y-2">
               <thead>
                 <tr className="text-left text-sm text-slate-500">
                   <th className="px-4 py-2">Número do chamado</th>
+                  <th className="px-4 py-2">Status</th>
                   <th className="px-4 py-2">Descrição</th>
                   <th className="px-4 py-2">Área requisitante</th>
                   <th className="px-4 py-2">Local de realização</th>
-                  <th className="px-4 py-2">Tempo exec</th>
                   <th className="px-4 py-2">Data início</th>
                   <th className="px-4 py-2">Data término</th>
                   <th className="px-4 py-2">Tipo da solicitação</th>
                   <th className="px-4 py-2">Equipe</th>
                   <th className="px-4 py-2">Encarregado</th>
                   <th className="px-4 py-2">Solicitante</th>
-                  <th className="px-4 py-2">Status</th>
                   <th className="px-4 py-2">Ação</th>
                 </tr>
               </thead>
 
               <tbody>
                 {programacoesFiltradas.map((item) => (
-                  <tr key={item.numeroChamado} className="rounded-2xl bg-slate-50 text-sm text-slate-700">
+                  <tr
+                    key={`${item.numeroChamado}-${item.dataInicio}-${item.encarregado}`}
+                    className="rounded-2xl bg-slate-50 text-sm text-slate-700"
+                  >
                     <td className="rounded-l-2xl px-4 py-4 font-semibold text-slate-900 whitespace-nowrap">
                       {item.numeroChamado}
                     </td>
-
-                    <td className="px-4 py-4 text-justify min-w-[220px]">
-                      {item.descricao}
-                    </td>
-
-                    <td className="px-4 py-4">{item.areaRequisitante}</td>
-                    <td className="px-4 py-4">{item.localRealizacao}</td>
-                    <td className="px-4 py-4 whitespace-nowrap">{item.tempoExec}</td>
-                    <td className="px-4 py-4 whitespace-nowrap">{item.dataInicio}</td>
-                    <td className="px-4 py-4 whitespace-nowrap">{item.dataTermino}</td>
-                    <td className="px-4 py-4">{item.tipoSolicitacao}</td>
-                    <td className="px-4 py-4 whitespace-nowrap">{item.equipe}</td>
-                    <td className="px-4 py-4">{item.encarregado}</td>
-                    <td className="px-4 py-4">{item.solicitante}</td>
 
                     <td className="px-4 py-4">
                       <StatusBadge status={item.status} />
                     </td>
 
-                    <td className="rounded-r-2xl px-4 py-4">
-                      <button className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold whitespace-nowrap">
+                    <td className="min-w-[260px] px-4 py-4 text-justify align-top">
+                      {item.descricao}
+                    </td>
+
+                    <td className="px-4 py-4 align-top">{item.areaRequisitante}</td>
+                    <td className="px-4 py-4 align-top">{item.localRealizacao}</td>
+                    <td className="whitespace-nowrap px-4 py-4 align-top">{item.dataInicio}</td>
+                    <td className="whitespace-nowrap px-4 py-4 align-top">{item.dataTermino}</td>
+                    <td className="px-4 py-4 align-top">{item.tipoSolicitacao}</td>
+                    <td className="whitespace-nowrap px-4 py-4 align-top">{item.equipe}</td>
+                    <td className="px-4 py-4 align-top">{item.encarregado}</td>
+                    <td className="px-4 py-4 align-top">{item.solicitante}</td>
+
+                    <td className="rounded-r-2xl px-4 py-4 align-top">
+                      <button className="whitespace-nowrap rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold">
                         Detalhes
                       </button>
                     </td>
