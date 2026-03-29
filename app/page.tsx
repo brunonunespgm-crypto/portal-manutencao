@@ -82,10 +82,11 @@ export default function HomePage() {
 
   const [programacoes, setProgramacoes] = useState<Programacao[]>(dadosExemplo);
   const [filtroNumero, setFiltroNumero] = useState('');
-  const [filtroEncarregado, setFiltroEncarregado] = useState('');
   const [filtroEquipe, setFiltroEquipe] = useState('');
   const [filtroData, setFiltroData] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('');
+  const [filtroEncarregado, setFiltroEncarregado] = useState('');
+  const [filtroTipoSolicitacao, setFiltroTipoSolicitacao] = useState('');
 
   useEffect(() => {
     const dadosSalvos = localStorage.getItem('programacoesImportadas');
@@ -117,15 +118,19 @@ export default function HomePage() {
     );
   }
 
+  const encarregadosUnicos = useMemo(() => {
+    return [...new Set(programacoes.map((item) => item.encarregado).filter(Boolean))].sort();
+  }, [programacoes]);
+
+  const tiposSolicitacaoUnicos = useMemo(() => {
+    return [...new Set(programacoes.map((item) => item.tipoSolicitacao).filter(Boolean))].sort();
+  }, [programacoes]);
+
   const programacoesFiltradas = useMemo(() => {
     return programacoes.filter((item) => {
       const atendeNumero =
         filtroNumero === '' ||
         item.numeroChamado.toLowerCase().includes(filtroNumero.toLowerCase());
-
-      const atendeEncarregado =
-        filtroEncarregado === '' ||
-        item.encarregado.toLowerCase().includes(filtroEncarregado.toLowerCase());
 
       const atendeEquipe =
         filtroEquipe === '' ||
@@ -138,15 +143,30 @@ export default function HomePage() {
       const atendeStatus =
         filtroStatus === '' || item.status === filtroStatus;
 
+      const atendeEncarregado =
+        filtroEncarregado === '' || item.encarregado === filtroEncarregado;
+
+      const atendeTipoSolicitacao =
+        filtroTipoSolicitacao === '' || item.tipoSolicitacao === filtroTipoSolicitacao;
+
       return (
         atendeNumero &&
-        atendeEncarregado &&
         atendeEquipe &&
         atendeData &&
-        atendeStatus
+        atendeStatus &&
+        atendeEncarregado &&
+        atendeTipoSolicitacao
       );
     });
-  }, [programacoes, filtroNumero, filtroEncarregado, filtroEquipe, filtroData, filtroStatus]);
+  }, [
+    programacoes,
+    filtroNumero,
+    filtroEquipe,
+    filtroData,
+    filtroStatus,
+    filtroEncarregado,
+    filtroTipoSolicitacao,
+  ]);
 
   const cards = useMemo(() => {
     const totalProgramadas = programacoes.filter((item) => item.status === 'Programada').length;
@@ -164,6 +184,16 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-8">
+      <style jsx global>{`
+        .tabela-sem-barra::-webkit-scrollbar {
+          height: 0px;
+        }
+        .tabela-sem-barra {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+      `}</style>
+
       <div className="mx-auto flex max-w-7xl flex-col gap-8">
         <header className="rounded-3xl bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -226,31 +256,54 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="mt-6 grid gap-3 md:grid-cols-5">
+          <div className="mt-6 grid gap-3 md:grid-cols-6">
             <input
               value={filtroNumero}
               onChange={(e) => setFiltroNumero(e.target.value)}
               className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none"
               placeholder="Filtrar por número do chamado"
             />
-            <input
-              value={filtroEncarregado}
-              onChange={(e) => setFiltroEncarregado(e.target.value)}
-              className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none"
-              placeholder="Filtrar por encarregado"
-            />
+
             <input
               value={filtroEquipe}
               onChange={(e) => setFiltroEquipe(e.target.value)}
               className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none"
               placeholder="Filtrar por equipe"
             />
+
             <input
               value={filtroData}
               onChange={(e) => setFiltroData(e.target.value)}
               className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none"
               placeholder="Filtrar por data início"
             />
+
+            <select
+              value={filtroEncarregado}
+              onChange={(e) => setFiltroEncarregado(e.target.value)}
+              className="rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-600 outline-none"
+            >
+              <option value="">Encarregado</option>
+              {encarregadosUnicos.map((encarregado) => (
+                <option key={encarregado} value={encarregado}>
+                  {encarregado}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={filtroTipoSolicitacao}
+              onChange={(e) => setFiltroTipoSolicitacao(e.target.value)}
+              className="rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-600 outline-none"
+            >
+              <option value="">Tipo da solicitação</option>
+              {tiposSolicitacaoUnicos.map((tipo) => (
+                <option key={tipo} value={tipo}>
+                  {tipo}
+                </option>
+              ))}
+            </select>
+
             <select
               value={filtroStatus}
               onChange={(e) => setFiltroStatus(e.target.value)}
@@ -277,7 +330,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="tabela-sem-barra overflow-x-auto">
             <table className="min-w-[1600px] border-separate border-spacing-y-2">
               <thead>
                 <tr className="text-left text-sm text-slate-500">
@@ -300,24 +353,30 @@ export default function HomePage() {
               <tbody>
                 {programacoesFiltradas.map((item) => (
                   <tr key={item.numeroChamado} className="rounded-2xl bg-slate-50 text-sm text-slate-700">
-                    <td className="rounded-l-2xl px-4 py-4 font-semibold text-slate-900">
+                    <td className="rounded-l-2xl px-4 py-4 font-semibold text-slate-900 whitespace-nowrap">
                       {item.numeroChamado}
                     </td>
-                    <td className="px-4 py-4">{item.descricao}</td>
+
+                    <td className="px-4 py-4 text-justify min-w-[220px]">
+                      {item.descricao}
+                    </td>
+
                     <td className="px-4 py-4">{item.areaRequisitante}</td>
                     <td className="px-4 py-4">{item.localRealizacao}</td>
-                    <td className="px-4 py-4">{item.tempoExec}</td>
-                    <td className="px-4 py-4">{item.dataInicio}</td>
-                    <td className="px-4 py-4">{item.dataTermino}</td>
+                    <td className="px-4 py-4 whitespace-nowrap">{item.tempoExec}</td>
+                    <td className="px-4 py-4 whitespace-nowrap">{item.dataInicio}</td>
+                    <td className="px-4 py-4 whitespace-nowrap">{item.dataTermino}</td>
                     <td className="px-4 py-4">{item.tipoSolicitacao}</td>
-                    <td className="px-4 py-4">{item.equipe}</td>
+                    <td className="px-4 py-4 whitespace-nowrap">{item.equipe}</td>
                     <td className="px-4 py-4">{item.encarregado}</td>
                     <td className="px-4 py-4">{item.solicitante}</td>
+
                     <td className="px-4 py-4">
                       <StatusBadge status={item.status} />
                     </td>
+
                     <td className="rounded-r-2xl px-4 py-4">
-                      <button className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold">
+                      <button className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold whitespace-nowrap">
                         Detalhes
                       </button>
                     </td>
@@ -325,10 +384,6 @@ export default function HomePage() {
                 ))}
               </tbody>
             </table>
-          </div>
-
-          <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-            Role horizontalmente para visualizar todas as colunas da programação.
           </div>
         </section>
       </div>
